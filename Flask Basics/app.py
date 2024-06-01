@@ -45,7 +45,17 @@ def process():
     location = request.form['location']
 
     return '<h1>Hello {}, you are from {}. Form submitted successfully!</h1>'.format(name, location)
+
 # -----------------------------------------------------------------------------------------------------------------------
+@app.route('/processjson', methods=['POST'])
+def processjson():
+    
+    data = request.get_json( ) # converte os dados json para estrutura de dados python
+    name = data['name']
+    location = data['location']
+    randomlist = data['randomlist']
+    return jsonify({'result' : 'Success!', 'name' : name, 'location' : location, 'randomlist' : randomlist[1]})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
