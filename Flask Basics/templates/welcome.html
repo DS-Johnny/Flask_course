@@ -1,0 +1,25 @@
+{% extends 'base.html' %} <!-- importa o padrão da base.html-->
+    <h1>Welcome {{ name }}</h1> <!-- Isso não aparece na página porque está fora do bloco-->
+
+{% block title%}
+Welcome
+{% endblock %}
+
+{% block content %} <!-- Tudo dentro do bloco aparece na página-->
+    {% if display %}
+    <h2>This is being displayed!</h2>
+    {% else %}
+    <h2>Display is off</h2>
+    {% endif %}
+
+
+    {% for x in mylist %}
+    <h3>Item: {{x}}</h3>
+    {% endfor %}
+
+    {% for x in dictionaryList %}
+    <h3>{{ x.name }}</h3>
+    {% endfor %}
+
+    <img src="{{ url_for('static', filename='python.png') }}" alt="">
+{% endblock %}

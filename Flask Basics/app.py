@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, url_for, redirect, session
+from flask import Flask, jsonify, request, url_for, redirect, session, render_template
 
 
 app = Flask(__name__) # app = instância da classe Flask / __name__ faz referencia ao módulo "app.py" que é o arquivo atual
@@ -80,6 +80,24 @@ def process():
     return '<h1>Hello {}, you are from {}. Form submitted successfully!</h1>'.format(name, location)
 """
 
+# -------------------------------------------------------------RENDER_TEMPLATE----------------------------------------------------
+@app.route('/form', methods=['POST', 'GET'])
+def form():
+    if request.method == 'GET':
+        return render_template('form.html')
+    
+    else:
+        name = request.form['name']
+        location = request.form['location']
+
+        return '<h1>Hello {}, you are from {}. Form submitted successfully!</h1>'.format(name, location)
+
+
+@app.route('/welcome')
+def welcome():
+    name = session['name'] 
+    return render_template('welcome.html', name=name, mylist=[1,2,3], 
+                           dictionaryList=[{'name' : 'Zoe'},{'name' : 'Gary'}])
 
 if __name__ == '__main__':
     app.run(debug=True)
