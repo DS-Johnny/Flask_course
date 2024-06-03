@@ -51,14 +51,17 @@ def index():
     cur = db.execute('SELECT * FROM log_date ORDER BY entry_date DESC')
     results = cur.fetchall()
 
-    pretty_results = []
+    date_results = []
     for i in results:
         single_date = {}
-        d = datetime.strptime(str(i['entry_date']), '%Y%m%d')
-        single_date['entry_date'] = datetime.strftime(d, '%B %d, %Y')
-        pretty_results.append(single_date)
 
-    return render_template('home.html', results=results)
+        single_date['entry_date'] = i['entry_date']
+
+        d = datetime.strptime(str(i['entry_date']), '%Y%m%d')
+        single_date['pretty_date'] = datetime.strftime(d, '%B %d, %Y')
+        date_results.append(single_date)
+
+    return render_template('home.html', results=date_results)
 
 @app.route('/view/<date>', methods=['GET', 'POST'])
 def view(date):
@@ -95,7 +98,7 @@ def view(date):
         totals['calories'] += food['calories']
 
 
-    return render_template('day.html', date=pretty_date, food_results=food_results, log_results=log_results, totals=totals)
+    return render_template('day.html', entry_date=date_result['entry_date'], prettydate=pretty_date, food_results=food_results, log_results=log_results, totals=totals)
 
 @app.route('/food', methods=['POST', 'GET'])
 def food():
