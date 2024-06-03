@@ -8,15 +8,15 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return "Hello, world!"
+    return render_template('home.html')
 
 @app.route('/view')
 def view():
-    return None
+    return render_template('day.html')
 
 @app.route('/food')
 def food():
-    return None
+    return render_template('add_food.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
