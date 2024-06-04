@@ -1,29 +1,11 @@
-from flask import Flask, render_template, g, request
-import sqlite3
+from flask import Flask, render_template, request, g
 from datetime import datetime
+from database import get_db, connect_db
 
 
 app = Flask(__name__)
 
 # -------------------------------------------------- DATABASE HELPER FUNCTIONS
-def connect_db():
-    """
-    Estabelece uma conexão com o banco de dados SQLite.
-    Configura a fábrica de linhas para retornar dicionários ao invés de tuplas.
-    """
-    sql = sqlite3.connect('food_log.db')
-    sql.row_factory = sqlite3.Row  # Retorna as linhas como dicionários ao invés de tuplas
-    return sql
-
-def get_db():
-    """
-    Obtém a conexão com o banco de dados armazenada em g.
-    Se não existir, cria uma nova conexão e a armazena em g.
-    """
-    if not hasattr(g, 'sqlite_db'):  # Verifica se 'sqlite_db' não existe em 'g'
-        g.sqlite_db = connect_db()  # Conecta ao banco de dados e armazena a conexão em 'g'
-    return g.sqlite_db
-
 @app.teardown_appcontext
 def close_db(error):
     """
@@ -48,7 +30,7 @@ def index():
         db.execute('INSERT INTO log_date (entry_date) VALUES (?)', [database_date])
         db.commit()
 
-    cur = db.execute('SELECT * FROM log_date ORDER BY entry_date DESC')
+    cur = db.execute('select log_date.entry_date, sum(food.protein) as protein, sum(food.carbohydrates) as carbohydrates, sum(food.fat) as fat, sum(food.calories) as calories from log_date join food_date on food_date.log_date_id = log_date.id join food on food.id = food_date.food_id group by log_date.id order by log_date.entry_date desc')
     results = cur.fetchall()
 
     date_results = []
@@ -56,6 +38,10 @@ def index():
         single_date = {}
 
         single_date['entry_date'] = i['entry_date']
+        single_date['protein'] = i['protein']
+        single_date['carbohydrates'] = i['carbohydrates']
+        single_date['fat'] = i['fat']
+        single_date['calories'] = i['calories']
 
         d = datetime.strptime(str(i['entry_date']), '%Y%m%d')
         single_date['pretty_date'] = datetime.strftime(d, '%B %d, %Y')
@@ -98,7 +84,7 @@ def view(date):
         totals['calories'] += food['calories']
 
 
-    return render_template('day.html', entry_date=date_result['entry_date'], prettydate=pretty_date, food_results=food_results, log_results=log_results, totals=totals)
+    return render_template('day.html', entry_date=date_result['entry_date'], pretty_date=pretty_date, food_results=food_results, log_results=log_results, totals=totals)
 
 @app.route('/food', methods=['POST', 'GET'])
 def food():
