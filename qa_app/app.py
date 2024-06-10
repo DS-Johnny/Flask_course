@@ -1,5 +1,6 @@
-from flask import Flask, render_template, g
+from flask import Flask, render_template, g, request
 from database import get_db
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -16,8 +17,19 @@ def close_db(error):
 def index():
     return render_template('home.html')
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
+    if request.method == 'POST':
+        db = get_db()
+        name = request.form['name']
+        hashed_password = generate_password_hash(request.form['password'])
+        expert = 0
+        admin = 0
+        db.execute('insert into users (name, password, expert, admin) values (?, ?, ?, ?)', [name, hashed_password, expert, admin])
+        db.commit()
+        
+        return '<h1>User Created!</h1>'
+
     return render_template('register.html')
 
 @app.route('/login')
