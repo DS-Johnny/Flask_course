@@ -79,7 +79,21 @@ def login():
 @app.route('/question/<question_id>')
 def question(question_id):
     user = get_current_user()
-    return render_template('question.html', user=user)
+    db = get_db()
+    question_cur = db.execute('''
+                                select 
+                                    questions.id as question_id,
+                                    questions.answer_text, 
+                                    questions.question_text, 
+                                    askers.name as asker_name, 
+                                    experts.name as expert_name 
+                                from questions join users as askers on askers.id = questions. asked_by_id 
+                                                join users as experts on experts.id = questions.expert_id 
+                                where question_id = ?''', [question_id])
+
+    question = question_cur.fetchone()
+
+    return render_template('question.html', user=user, question=question)
 
 @app.route('/answer/<question_id>', methods=['GET', 'POST'])
 def answer(question_id):
