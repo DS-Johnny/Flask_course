@@ -16,16 +16,27 @@ def close_db(error):
     if hasattr(g, 'sqlite_db'):  # Verifica se 'sqlite_db' existe em 'g'
         g.sqlite_db.close()  # Fecha a conexão com o banco de dados
 
-@app.route('/')
-def index():
-    user = None
+def get_current_user():
+    user_result = None
     if 'user' in session:
         user = session['user']
+
+        db = get_db()
+        user_cur = db.execute('select * from users where name = ?', [user])
+        user_result = user_cur.fetchone()
+
+    return user_result
+
+
+@app.route('/')
+def index():
+    user = get_current_user()
 
     return render_template('home.html', user=user)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    user = get_current_user()
     if request.method == 'POST':
         db = get_db()
         name = request.form['name']
@@ -37,10 +48,11 @@ def register():
 
         return '<h1>User Created!</h1>'
 
-    return render_template('register.html')
+    return render_template('register.html', user=user)
 
 @app.route('/login', methods=['GET', 'POST']) #user admin password adminpass
 def login():
+    user = get_current_user()
     if request.method == 'POST':
         db = get_db()
         name = request.form['name']
@@ -56,27 +68,32 @@ def login():
             return 'Incorrect password'
         
 
-    return render_template('login.html')
+    return render_template('login.html', user=user)
 
 @app.route('/question')
 def question():
-    return render_template('question.html')
+    user = get_current_user()
+    return render_template('question.html', user=user)
 
 @app.route('/answer')
 def answer():
-    return render_template('answer.html')
+    user = get_current_user()
+    return render_template('answer.html', user=user)
 
 @app.route('/ask')
 def ask():
-    return render_template('ask.html')
+    user = get_current_user()
+    return render_template('ask.html', user=user)
 
 @app.route('/unanswered')
 def unanswered():
-    return render_template('unanswered.html')
+    user = get_current_user()
+    return render_template('unanswered.html', user=user)
 
 @app.route('/users')
 def users ():
-    return render_template('users.html')
+    user = get_current_user()
+    return render_template('users.html', user=user)
 
 @app.route('/logout')
 def logout():
