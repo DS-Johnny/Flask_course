@@ -77,8 +77,8 @@ def question():
     user = get_current_user()
     return render_template('question.html', user=user)
 
-@app.route('/answer')
-def answer():
+@app.route('/answer<question_id>')
+def answer(question_id):
     user = get_current_user()
     return render_template('answer.html', user=user)
 
@@ -105,7 +105,7 @@ def ask():
 def unanswered():
     user = get_current_user()
     db = get_db()
-    questions_cur = db.execute('select * from questions join users on users.id = questions.asked_by_id where answer_text is null and expert_id = ?', [user['id']])
+    questions_cur = db.execute('select questions.id, questions.question_text, users.name from questions join users on users.id = questions.asked_by_id where questions.answer_text is null and questions.expert_id = ?', [user['id']])
     question_results = questions_cur.fetchall()
 
     return render_template('unanswered.html', user=user, questions=question_results)
