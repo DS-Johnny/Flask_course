@@ -105,6 +105,12 @@ def question(question_id):
 @app.route('/answer/<question_id>', methods=['GET', 'POST'])
 def answer(question_id):
     user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    
+    if user['expert'] == 0:
+        return redirect(url_for('index'))
+
     db = get_db()
 
     if request.method == 'POST':
@@ -122,6 +128,9 @@ def answer(question_id):
 @app.route('/ask', methods=['POST', 'GET'])
 def ask():
     user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
     db = get_db()
 
     if request.method == 'POST':
@@ -141,6 +150,12 @@ def ask():
 @app.route('/unanswered')
 def unanswered():
     user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    
+    if user['expert'] == 0:
+        return redirect(url_for('index'))
+
     db = get_db()
     questions_cur = db.execute('select questions.id, questions.question_text, users.name from questions join users on users.id = questions.asked_by_id where questions.answer_text is null and questions.expert_id = ?', [user['id']])
     question_results = questions_cur.fetchall()
@@ -150,7 +165,12 @@ def unanswered():
 @app.route('/users')
 def users ():
     user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
 
+    if user['admin'] == 0:
+        return redirect(url_for('index'))
+    
     db = get_db()
     users_cur = db.execute('select * from users')
     user_results = users_cur.fetchall()
@@ -159,7 +179,13 @@ def users ():
 
 @app.route('/promote/<user_id>')
 def promote(user_id):
-
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    
+    if user['admin'] == 0:
+        return redirect(url_for('index'))
+    
     db = get_db()
     db.execute('update users set expert = 1 where id = ?', [user_id])
     db.commit()
@@ -167,6 +193,7 @@ def promote(user_id):
 
 @app.route('/logout')
 def logout():
+
     session.pop('user', None)
     return redirect(url_for('index'))
 
