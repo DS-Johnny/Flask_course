@@ -1,6 +1,20 @@
-from flask import Flask
+from flask import Flask, g
+from database import get_db
 
 app = Flask(__name__)
+
+# --------------------- Database helpers -----------------------------
+@app.teardown_appcontext
+def close_db(error):
+    """
+    Fecha a conexão com o banco de dados armazenada em g, se existir.
+    Esta função é chamada automaticamente ao final de cada requisição.
+    """
+    if hasattr(g, 'sqlite_db'):  # Verifica se 'sqlite_db' existe em 'g'
+        g.sqlite_db.close()  # Fecha a conexão com o banco de dados
+
+
+
 
 @app.route('/member', methods=['GET'])
 def get_members():
