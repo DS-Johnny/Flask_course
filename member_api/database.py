@@ -7,7 +7,7 @@ def connect_db():
     Estabelece uma conexão com o banco de dados SQLite.
     Configura a fábrica de linhas para retornar dicionários ao invés de tuplas.
     """
-    sql = sqlite3.connect('questions.db')
+    sql = sqlite3.connect('members.db')
     sql.row_factory = sqlite3.Row  # Retorna as linhas como dicionários ao invés de tuplas
     return sql
 
